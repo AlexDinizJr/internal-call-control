@@ -15,5 +15,6 @@ namespace api.Interfaces
         public Task<Technician?> UpdateAsync(int id, UpdateTechnicianRequestDTO technicianDto);
         public Task<Technician?> DeleteAsync(int id);
         Task<bool> TechnicianExists(int id);
+        Task<Technician?> GetAvailableTechnicianAsync();
     }
 }

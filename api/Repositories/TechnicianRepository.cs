@@ -7,6 +7,7 @@ using api.Interfaces;
 using api.Data;
 using api.DTOs.Technician;
 using api.Entities;
+using api.Enums;
 
 namespace api.Repositories
 {
@@ -62,6 +63,15 @@ namespace api.Repositories
         public Task<bool> TechnicianExists(int id)
         {
             return _context.Technicians.AnyAsync(t => t.Id == id);
+        }
+
+        public async Task<Technician?> GetAvailableTechnicianAsync()
+        {
+            // Returns the technician with the least number of in-progress calls
+            return await _context.Technicians
+                .Include(t => t.Calls)
+                .OrderBy(t => t.Calls.Count(c => c.Status == CallStatus.InProgress))
+                .FirstOrDefaultAsync();
         }
     }
 }

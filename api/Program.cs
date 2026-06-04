@@ -10,17 +10,14 @@ SQLitePCL.Batteries.Init();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
 // Configure JSON serialization to handle reference loops (e.g., when a Call references a Technician and the Technician references Calls)
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
+builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Register repositories for dependency injection
 builder.Services.AddScoped<ICallRepository, CallRepository>();

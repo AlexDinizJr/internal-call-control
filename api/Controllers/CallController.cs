@@ -76,6 +76,29 @@ namespace api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = callModel.Id }, _mapper.Map<CallDTO>(callModel));
         }
 
+        // Endpoint to create a call and automatically assign it to the technician with least in-progress calls
+        [HttpPost("auto")]
+        public async Task<IActionResult> CreateAuto([FromBody] CreateCallRequestDTO call)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Get the technician with the least in-progress calls
+            var availableTechnician = await _technicianRepo.GetAvailableTechnicianAsync();
+
+            if (availableTechnician == null)
+            {
+                return BadRequest("No technicians available");
+            }
+
+            var callModel = _mapper.Map<Call>(call);
+            callModel.TechnicianId = availableTechnician.Id;
+
+            await _callRepo.CreateAsync(callModel);
+
+            return CreatedAtAction(nameof(GetById), new { id = callModel.Id }, _mapper.Map<CallDTO>(callModel));
+        }
+
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCallRequestDTO call)
         {
