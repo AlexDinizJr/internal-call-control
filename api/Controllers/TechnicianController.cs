@@ -36,9 +36,6 @@ namespace api.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-                
             var technician = await _technicianRepo.GetByIdAsync(id);
 
             if (technician == null)
@@ -51,9 +48,6 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTechnicianRequestDTO technician)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);                
-
             var technicianModel = _mapper.Map<Technician>(technician);
 
             await _technicianRepo.CreateAsync(technicianModel);
@@ -64,19 +58,11 @@ namespace api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTechnicianRequestDTO technician)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var updatedTechnician =
+                await _technicianRepo.UpdateAsync(id, technician);
 
-            var existingTechnician = await _technicianRepo.GetByIdAsync(id);
-
-            if (existingTechnician == null)
-            {
+            if (updatedTechnician == null)
                 return NotFound();
-            }
-
-            _mapper.Map(technician, existingTechnician);
-
-            var updatedTechnician = await _technicianRepo.UpdateAsync(id, technician);
 
             return Ok(_mapper.Map<TechnicianDTO>(updatedTechnician));
         }
@@ -84,17 +70,10 @@ namespace api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var deletedTechnician = await _technicianRepo.DeleteAsync(id);
 
-            var technician = await _technicianRepo.GetByIdAsync(id);
-
-            if (technician == null)
-            {
+            if (deletedTechnician == null)
                 return NotFound();
-            }
-
-            await _technicianRepo.DeleteAsync(id);
 
             return NoContent();
         }

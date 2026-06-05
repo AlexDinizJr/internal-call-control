@@ -29,9 +29,6 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] CallQueryObject callQuery)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-                
             var calls = await _callRepo.GetAllAsync(callQuery);
 
             var callDTOs = _mapper.Map<List<CallDTO>>(calls);
@@ -42,9 +39,6 @@ namespace api.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-                
             var call = await _callRepo.GetByIdAsync(id);
 
             if (call == null)
@@ -58,9 +52,6 @@ namespace api.Controllers
         [HttpPost("{technicianId:int}")]
         public async Task<IActionResult> Create([FromRoute] int technicianId, [FromBody] CreateCallRequestDTO call)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Check if the technician exists
             if (!await _technicianRepo.TechnicianExists(technicianId))
             {
@@ -73,16 +64,16 @@ namespace api.Controllers
 
             await _callRepo.CreateAsync(callModel);
 
-            return CreatedAtAction(nameof(GetById), new { id = callModel.Id }, _mapper.Map<CallDTO>(callModel));
+            // reload the call with the technician to return the name
+            var createdCall = await _callRepo.GetByIdAsync(callModel.Id);
+
+            return CreatedAtAction(nameof(GetById), new { id = callModel.Id }, _mapper.Map<CallDTO>(createdCall));
         }
 
         // Endpoint to create a call and automatically assign it to the technician with least in-progress calls
         [HttpPost("auto")]
         public async Task<IActionResult> CreateAuto([FromBody] CreateCallRequestDTO call)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             // Get the technician with the least in-progress calls
             var availableTechnician = await _technicianRepo.GetAvailableTechnicianAsync();
 
@@ -96,25 +87,19 @@ namespace api.Controllers
 
             await _callRepo.CreateAsync(callModel);
 
-            return CreatedAtAction(nameof(GetById), new { id = callModel.Id }, _mapper.Map<CallDTO>(callModel));
+            // reload the call with the technician to return the name
+            var createdCall = await _callRepo.GetByIdAsync(callModel.Id);
+
+            return CreatedAtAction(nameof(GetById), new { id = callModel.Id }, _mapper.Map<CallDTO>(createdCall));
         }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCallRequestDTO call)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var existingCall = await _callRepo.GetByIdAsync(id);
-            
-            if (existingCall == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(call, existingCall);
-            
             var updatedCall = await _callRepo.UpdateAsync(id, call);
+
+            if (updatedCall == null)
+                    return NotFound();
 
             return Ok(_mapper.Map<CallDTO>(updatedCall));
         }
@@ -122,17 +107,10 @@ namespace api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var deletedCall = await _callRepo.DeleteAsync(id);
 
-            var existingCall = await _callRepo.GetByIdAsync(id);
-
-            if (existingCall == null)
-            {
+            if (deletedCall == null)
                 return NotFound();
-            }
-
-            await _callRepo.DeleteAsync(id);
 
             return NoContent();
         }

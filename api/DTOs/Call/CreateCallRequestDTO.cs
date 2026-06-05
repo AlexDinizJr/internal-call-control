@@ -16,10 +16,6 @@ namespace api.DTOs.Call
         [Required(ErrorMessage = "Description is required")]
         [StringLength(250, MinimumLength = 1, ErrorMessage = "Description must be between 1 and 250 characters")]
         public string Description { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Status is required")]
-        [EnumDataType(typeof(CallStatus), ErrorMessage = "Invalid status")]
-        public CallStatus Status { get; set; } = CallStatus.Pending;
         
         [Required(ErrorMessage = "Priority is required")]
         [EnumDataType(typeof(CallPriority), ErrorMessage = "Invalid priority")]
