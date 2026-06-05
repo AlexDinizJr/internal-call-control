@@ -1,0 +1,1 @@
+// footer component which will be used in the layout of the application, can be really generic and just as a placeholder.

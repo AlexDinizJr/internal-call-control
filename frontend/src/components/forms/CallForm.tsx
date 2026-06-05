@@ -1,0 +1,4 @@
+// call form which will be used in the register calls page to register a new call, it will contain the input fields for the call details (title, description)
+// it will also contain the dropdown for the call priority (low, medium, high) and the dropdown for selecting the technician assigned to the call.
+// it will also contain a special button to make the system choose a technician for the call based on the technician's current workload (it will call the backend to get the technician with the least workload)
+// lastly, it will contain a submit button to submit the form and register the call in the system or cancel button to clear the form and go back to the calls page

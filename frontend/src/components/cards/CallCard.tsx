@@ -1,0 +1,2 @@
+// call button component which will be used in the calls page to display the call details in a card format, it will contain the call details 
+// (title, description, priority, status, caller, date started) and the button for editing the call which will call edit modal.
