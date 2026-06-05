@@ -1,0 +1,16 @@
+services:
+  api:
+    build: ./api
+    ports:
+      - "5066:8080"
+    volumes:
+      - ./api/app.db:/app/app.db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host
+    working_dir: /app

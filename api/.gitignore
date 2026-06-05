@@ -57,9 +57,6 @@ Desktop.ini
 # Secret manager
 secrets.json
 
-# Entity Framework
-*.db
-
 # Temporary files
 *.tmp
 *.temp

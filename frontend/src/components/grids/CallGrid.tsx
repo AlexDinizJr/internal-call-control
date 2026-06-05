@@ -30,7 +30,7 @@ export const CallGrid = ({ calls, isLoading, onEdit, actionLabel }: CallGridProp
 
     return (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {calls.map((call) => (
+            {Array.isArray(calls) && calls.map((call) => (
                 <CallCard key={call.id} call={call} onEdit={onEdit} actionLabel={actionLabel} />
             ))}
         </div>

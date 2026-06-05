@@ -126,7 +126,7 @@ export const CallForm = () => {
                                 className="h-11 rounded border border-slate-300 px-3 text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200 disabled:bg-slate-100"
                             >
                                 <option value="">{isLoadingTechnicians ? "Carregando..." : "Selecione um tecnico"}</option>
-                                {technicians.map((technician) => (
+                                {Array.isArray(technicians) && technicians.map((technician) => (
                                     <option key={technician.id} value={technician.id}>{technician.name}</option>
                                 ))}
                             </select>
