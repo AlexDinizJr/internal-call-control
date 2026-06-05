@@ -1,3 +1,24 @@
-// component for sort order of calls in the calls page, will be used in the header of the calls page along with the search bar component.
-// it will be a dropdown menu with the options "Newest first" and "Oldest first" and things like that.
-// we already have query parameters for sort order, so this component will just update the query parameters in the backend.
+export type SortOrder = "newest" | "oldest" | "highestPriority" | "lowestPriority";
+
+type SortOrderComponentProps = {
+    value: SortOrder;
+    onChange: (value: SortOrder) => void;
+};
+
+export const SortOrderComponent = ({ value, onChange }: SortOrderComponentProps) => {
+    return (
+        <label className="flex w-full flex-col gap-2 text-sm font-medium text-slate-700 sm:w-48">
+            Ordenação
+            <select
+                value={value}
+                onChange={(event) => onChange(event.target.value as SortOrder)}
+                className="h-11 rounded border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+            >
+                <option value="newest">Mais recentes</option>
+                <option value="oldest">Mais antigos</option>
+                <option value="highestPriority">Mais prioridade</option>
+                <option value="lowestPriority">Menos prioridade</option>
+            </select>
+        </label>
+    );
+};

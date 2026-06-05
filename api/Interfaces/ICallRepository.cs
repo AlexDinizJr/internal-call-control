@@ -11,6 +11,7 @@ namespace api.Interfaces
     public interface ICallRepository
     {
         public Task<List<Call>> GetAllAsync(CallQueryObject callQuery);
+        public Task<List<CallGroup>> GetGroupedByTechnicianAsync(CallQueryObject callQuery);
         public Task<Call?> GetByIdAsync(int id);
         public Task<Call> CreateAsync(Call callModel);
         public Task<Call?> UpdateAsync(int id, UpdateCallRequestDTO callDto);

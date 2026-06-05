@@ -15,6 +15,7 @@ namespace api.DTOs.Call
         public DateTime? EndedAt { get; set; } = null;
         public CallStatus Status { get; set; } = CallStatus.Pending;
         public CallPriority Priority { get; set; } = CallPriority.Medium;
+        public int TechnicianId { get; set; }
         public string TechnicianName { get; set; } = string.Empty;
     }
 }

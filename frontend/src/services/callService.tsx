@@ -3,9 +3,18 @@ import { getErrorPayload } from "../utils/getErrorPayload";
 import type { CallRequest } from "../interfaces/CallRequest";
 import type { CallUpdate } from "../interfaces/CallRequest";
 
-export const getCalls = async () => {
+export type CallQueryParams = {
+    Title?: string;
+    SortBy?: "Date" | "Priority";
+    IsDescending?: boolean;
+    GroupBy?: "Technician";
+    PageNumber?: number;
+    PageSize?: number;
+};
+
+export const getCalls = async (params: CallQueryParams = {}) => {
     try {
-        const response = await api.get("/calls");
+        const response = await api.get("/calls", { params });
         return response.data;
     } catch (error: unknown) {
         console.error("error fetching calls:", getErrorPayload(error));

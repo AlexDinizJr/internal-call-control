@@ -22,16 +22,38 @@ namespace api.Repositories
 
         public async Task<List<Call>> GetAllAsync(CallQueryObject callQuery)
         {
+            var calls = BuildCallQuery(callQuery);
+
+            var skipNumber = (callQuery.PageNumber - 1) * callQuery.PageSize;
+
+            return await calls.Skip(skipNumber).Take(callQuery.PageSize).ToListAsync();
+        }
+
+        public async Task<List<CallGroup>> GetGroupedByTechnicianAsync(CallQueryObject callQuery)
+        {
+            var calls = await BuildCallQuery(callQuery).ToListAsync();
+
+            return calls
+                .GroupBy(call => call.Technician != null ? call.Technician.Name : "Nao atribuido")
+                .OrderBy(group => group.Key)
+                .Skip((callQuery.PageNumber - 1) * callQuery.PageSize)
+                .Take(callQuery.PageSize)
+                .Select(group => new CallGroup
+                {
+                    TechnicianName = group.Key,
+                    Calls = group.ToList(),
+                })
+                .ToList();
+        }
+
+        private IQueryable<Call> BuildCallQuery(CallQueryObject callQuery)
+        {
             var calls = _context.Calls.Include(t => t.Technician).AsQueryable();
-            
+
             if (!string.IsNullOrWhiteSpace(callQuery.Title))
             {
-                calls = calls.Where(c => c.Title.Contains(callQuery.Title));
-            }
-
-            if (!string.IsNullOrWhiteSpace(callQuery.TechnicianName))
-            {
-                calls = calls.Where(c => c.Technician != null && c.Technician.Name.Contains(callQuery.TechnicianName));
+                var title = callQuery.Title.ToLower();
+                calls = calls.Where(c => c.Title.ToLower().Contains(title));
             }
 
             if (!string.IsNullOrWhiteSpace(callQuery.SortBy))
@@ -40,11 +62,14 @@ namespace api.Repositories
                 {
                     calls = callQuery.IsDescending ? calls.OrderByDescending(c => c.CreatedAt) : calls.OrderBy(c => c.CreatedAt);
                 }
+
+                if (callQuery.SortBy.Equals("Priority", StringComparison.OrdinalIgnoreCase))
+                {
+                    calls = callQuery.IsDescending ? calls.OrderByDescending(c => c.Priority) : calls.OrderBy(c => c.Priority);
+                }
             }
 
-            var skipNumber = (callQuery.PageNumber - 1) * callQuery.PageSize;
-
-            return await calls.Skip(skipNumber).Take(callQuery.PageSize).ToListAsync();
+            return calls;
         }
 
         public async Task<Call?> GetByIdAsync(int id)
@@ -61,7 +86,9 @@ namespace api.Repositories
 
         public async Task<Call?> UpdateAsync(int id, UpdateCallRequestDTO callDto)
         {
-            var existingCall = await _context.Calls.FirstOrDefaultAsync(c => c.Id == id);
+            var existingCall = await _context.Calls
+                .Include(c => c.Technician)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (existingCall == null)
                 return null;
@@ -70,9 +97,12 @@ namespace api.Repositories
             existingCall.Description = callDto.Description;
             existingCall.Status = callDto.Status;
             existingCall.Priority = callDto.Priority;
+            existingCall.TechnicianId = callDto.TechnicianId;
             existingCall.EndedAt = callDto.EndedAt;
 
             await _context.SaveChangesAsync();
+
+            await _context.Entry(existingCall).Reference(c => c.Technician).LoadAsync();
 
             return existingCall;
         }

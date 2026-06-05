@@ -20,6 +20,9 @@ namespace api.DTOs.Call
         
         [EnumDataType(typeof(CallPriority), ErrorMessage = "Invalid priority")]
         public CallPriority Priority { get; set; } = CallPriority.Medium;
+
+        [Required(ErrorMessage = "Technician is required")]
+        public int TechnicianId { get; set; }
         
         public DateTime? EndedAt { get; set; } = null;
     }

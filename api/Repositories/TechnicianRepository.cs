@@ -67,10 +67,10 @@ namespace api.Repositories
 
         public async Task<Technician?> GetAvailableTechnicianAsync()
         {
-            // Returns the technician with the least number of in-progress calls
+            // Returns the technician with the least number of open calls.
             return await _context.Technicians
                 .Include(t => t.Calls)
-                .OrderBy(t => t.Calls.Count(c => c.Status == CallStatus.InProgress))
+                .OrderBy(t => t.Calls.Count(c => c.Status == CallStatus.Pending || c.Status == CallStatus.InProgress))
                 .FirstOrDefaultAsync();
         }
     }

@@ -29,6 +29,19 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] CallQueryObject callQuery)
         {
+            if (callQuery.GroupBy?.Equals("Technician", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                var groupedCalls = await _callRepo.GetGroupedByTechnicianAsync(callQuery);
+
+                var groupedCallDTOs = groupedCalls.Select(group => new CallGroupDTO
+                {
+                    TechnicianName = group.TechnicianName,
+                    Calls = _mapper.Map<List<CallDTO>>(group.Calls),
+                });
+
+                return Ok(groupedCallDTOs);
+            }
+
             var calls = await _callRepo.GetAllAsync(callQuery);
 
             var callDTOs = _mapper.Map<List<CallDTO>>(calls);
@@ -96,6 +109,11 @@ namespace api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCallRequestDTO call)
         {
+            if (!await _technicianRepo.TechnicianExists(call.TechnicianId))
+            {
+                return BadRequest("Technician not found");
+            }
+
             var updatedCall = await _callRepo.UpdateAsync(id, call);
 
             if (updatedCall == null)
